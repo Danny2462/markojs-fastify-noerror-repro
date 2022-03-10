@@ -118,6 +118,10 @@ module.exports = [
 ];
 
 // Shared config for both server and client compilers.
+/**
+ * @param config { import('webpack').Configuration }
+ * @returns { import('webpack').Configuration }
+ */
 function compiler(config) {
   return {
     ...config,

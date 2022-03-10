@@ -12,7 +12,7 @@
   "private": true,
   "scripts": {
     "build": "marko-build ./src/pages",
-    "dev": "marko-serve ./src/pages",
+    "dev": "marko-serve ./src/pages --no-browser",
     "start": "NODE_ENV=production node ./build/index.js"
   }
 }

@@ -21,6 +21,8 @@ const spawnedServer =
     ].filter(Boolean),
   });
 
+const PORT = parseInt(process.env.PORT || 3001, 10);
+
 module.exports = [
   compiler({
     name: "browser",
@@ -46,7 +48,7 @@ module.exports = [
           static: false,
           host: "0.0.0.0",
           allowedHosts: "all",
-          port: parseInt(process.env.PORT || 3000, 10),
+          port: PORT,
           headers: {
             "Access-Control-Allow-Origin": "*",
           },
@@ -56,7 +58,7 @@ module.exports = [
       rules: [
         {
           test: /\.css$/,
-          use: [CSSExtractPlugin.loader, "css-loader"],
+          use: [CSSExtractPlugin.loader, "css-loader", "postcss-loader"],
         },
         {
           test: /\.(jpg|jpeg|gif|png|svg)$/,
@@ -97,11 +99,30 @@ module.exports = [
     },
     module: {
       rules: [
-        {
-          test: /\.(jpg|jpeg|gif|png|svg)$/,
-          generator: { emit: false },
-          type: "asset/resource",
-        },
+        // {
+        //   test: /\.(jpg|jpeg|gif|png)$/,
+        //   generator: { emit: false },
+        //   type: "asset/resource",
+        // },
+        // ^-- this doesn't work for SVGs for some reason! Chrome shows it's missing them from the Sources panel
+        // Either we inline SVGs if we want to keep generator.emit = false,
+        // OR
+        // we don't inline SVGs but we take out generator.emit = false, to make the SVG show up in Sources
+        ...(true ?
+          [
+            { test: /\.svg$/, type: "asset" },
+            {
+              test: /\.(jpg|jpeg|gif|png)$/,
+              generator: { emit: false },
+              type: "asset/resource",
+            },
+          ] : [
+            {
+              test: /\.(jpg|jpeg|gif|png|svg)$/,
+              type: "asset/resource",
+            },
+          ]
+        ),
       ],
     },
     plugins: [
@@ -118,14 +139,16 @@ module.exports = [
 ];
 
 // Shared config for both server and client compilers.
+/**
+ * @param config { import('webpack').Configuration }
+ * @returns { import('webpack').Configuration }
+ */
 function compiler(config) {
   return {
     ...config,
     mode: isProd ? "production" : "development",
     stats: isDev && "minimal",
-    cache: {
-      type: "filesystem",
-    },
+    cache: false,
     output: {
       ...config.output,
       publicPath: "/assets/",
