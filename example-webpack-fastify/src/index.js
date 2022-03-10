@@ -4,7 +4,6 @@ import fastifyStatic from "fastify-static";
 import fastifyCompress from "fastify-compress";
 import fastifyMarko from "@marko/fastify";
 import indexPage from "./pages/index";
-import usersService from "./services/users";
 
 const port = process.env.PORT || 3000;
 
@@ -16,7 +15,6 @@ fastify()
   })
   .register(fastifyMarko)
   .get("/", indexPage)
-  .get("/services/users", usersService)
   .listen(port, (err, address) => {
     if (err) {
       throw err;
